@@ -17,3 +17,6 @@ lint:
 
 test:
 	uv run pytest -q
+
+worker:
+	uv run python -m app.temporal_worker

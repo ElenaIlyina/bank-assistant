@@ -35,7 +35,7 @@ def setup_llm() -> None:
     _configured = True
 
 
-async def run_agent(agent: Agent, prompt: str, context=None) -> RunResult:
+async def run_agent(agent: Agent, prompt: str | list, context=None) -> RunResult:
     setup_llm()
     started = time.monotonic()
     result = await asyncio.wait_for(

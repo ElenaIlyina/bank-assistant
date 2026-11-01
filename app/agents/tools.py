@@ -1,15 +1,18 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Annotated, Literal
+from uuid import uuid4
 
 from agents import RunContextWrapper, function_tool
 from pydantic import Field
 
-from app.services import loans
+from app.services import application_process, applications, loans
 
 
 @dataclass
+@dataclass
 class ClientContext:
     loan_id: int
+    request_id: str = field(default_factory=lambda: uuid4().hex)
 
 
 def _loan(ctx: RunContextWrapper[ClientContext]):
@@ -45,4 +48,35 @@ def simulate_early_repayment(
     return loans.simulate_early_repayment(_loan(ctx), after_month, amount_rub * 100, mode)
 
 
-TOOLS = [get_loan, get_schedule, simulate_early_repayment]
+@function_tool(
+    description_override="Проверить возможность смены даты платежа и проценты переходного периода."
+)
+def check_payment_date_change(
+    ctx: RunContextWrapper[ClientContext],
+    new_day: Annotated[int, Field(description="новое число месяца для платежа")],
+) -> dict:
+    return applications.check_payment_day(_loan(ctx).id, new_day)
+
+
+@function_tool(
+    description_override="Подать заявление на смену даты платежа по явной просьбе клиента."
+)
+async def create_payment_date_application(
+    ctx: RunContextWrapper[ClientContext],
+    new_day: Annotated[int, Field(ge=1, le=28, description="новое число месяца")],
+) -> dict:
+    loan_id = _loan(ctx).id
+    key = f"ask:{ctx.context.request_id}:{loan_id}:{new_day}"
+    job = await application_process.create_payment_day(loan_id, new_day, key)
+    if job is None:
+        raise ValueError("кредит не найден")
+    return {"job_id": job["id"], "status": job["status"]}
+
+
+TOOLS = [
+    get_loan,
+    get_schedule,
+    simulate_early_repayment,
+    check_payment_date_change,
+    create_payment_date_application,
+]

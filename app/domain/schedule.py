@@ -91,15 +91,30 @@ class PaymentDayChange:
     transition_interest: int
 
 
-def change_payment_day(balance: int, rate_bp: int, last_payment: date, new_day: int) -> PaymentDayChange:
+def change_payment_day(
+    balance: int,
+    rate_bp: int,
+    last_payment: date,
+    new_day: int,
+    *,
+    not_before: date | None = None,
+) -> PaymentDayChange:
     if not 1 <= new_day <= 28:
         raise ValueError("дата платежа: с 1 по 28 число")
-    y, m = (last_payment.year, last_payment.month)
+    y, m = last_payment.year, last_payment.month
     if new_day <= last_payment.day:
         y, m = (y + 1, 1) if m == 12 else (y, m + 1)
     new_date = date(y, m, new_day)
+    if not_before is not None and new_date < not_before:
+        new_date = date(not_before.year, not_before.month, new_day)
+        if new_date < not_before:
+            new_date = add_months(new_date, 1, new_day)
     days = (new_date - last_payment).days
-    return PaymentDayChange(new_date, days, round_div(balance * rate_bp * days, BP * 365))
+    return PaymentDayChange(
+        new_date,
+        days,
+        round_div(balance * rate_bp * days, BP * 365),
+    )
 
 
 def add_months(start: date, k: int, day: int) -> date:

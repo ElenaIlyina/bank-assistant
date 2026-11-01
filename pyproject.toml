@@ -12,6 +12,7 @@ dependencies = [
     "structlog>=24.1",
     "openai-agents>=0.2,<1",
     "openai>=1.50",
+    "temporalio>=1.14,<2",
 ]
 
 [dependency-groups]

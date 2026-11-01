@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,10 @@ class Settings(BaseSettings):
     llm_max_retries: int = 3
     agent_max_turns: int = 6
     agent_timeout_s: float = 300.0
+    confidence_threshold: float = Field(default=0.6, ge=0, le=1)
 
+    temporal_host: str = "localhost:7233"
+    temporal_task_queue: str = "mortgage"
+    temporal_activity_threads: int = Field(default=4, ge=1)
 
 settings = Settings()
