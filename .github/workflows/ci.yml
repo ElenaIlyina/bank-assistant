@@ -25,6 +25,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://mortgage:mortgage@localhost:5434/mortgage
+      TEMPORAL_HOST: 127.0.0.1:7233
 
     steps:
       - uses: actions/checkout@v6
@@ -42,5 +43,16 @@ jobs:
       - name: Линтер
         run: make lint
 
+      - name: Запуск Temporal
+        run: docker compose -p mortgage-assistant up -d --wait --wait-timeout 120 temporal
+
       - name: Тесты
         run: make test
+
+      - name: Логи Temporal при ошибке
+        if: failure()
+        run: docker compose -p mortgage-assistant logs --no-color temporal
+
+      - name: Остановка Temporal
+        if: always()
+        run: docker compose -p mortgage-assistant down
