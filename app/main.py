@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from app.core import db
 from app.core.logging import setup_logging
-from app.routers import applications, assistant, health, loans
+from app.routers import applications, assistant, documents, health, loans, search
 
 
 @asynccontextmanager
@@ -19,3 +19,5 @@ app.include_router(health.router)
 app.include_router(loans.router)
 app.include_router(assistant.router)
 app.include_router(applications.router)
+app.include_router(documents.router)
+app.include_router(search.router)

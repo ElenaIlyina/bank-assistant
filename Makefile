@@ -1,4 +1,4 @@
-.PHONY: install infra migrate api lint test
+.PHONY: install infra migrate api worker chunks dataset reindex lint test
 
 install:
 	uv sync --frozen
@@ -20,3 +20,12 @@ test:
 
 worker:
 	uv run python -m app.temporal_worker
+
+chunks:
+	uv run python -m app.services.documents "$(FILE)"
+
+dataset:
+	uv run python scripts/make_dataset.py
+
+reindex:
+	uv run python -m app.services.reindex

@@ -22,4 +22,9 @@ class Settings(BaseSettings):
     temporal_task_queue: str = "mortgage"
     temporal_activity_threads: int = Field(default=4, ge=1)
 
+    embedding_model: str = "google/embeddinggemma-300m"
+    embedding_batch_size: int = Field(default=8, ge=1)
+
+    search_similarity_threshold: float = Field(default=0.30, ge=-1, le=1)
+
 settings = Settings()

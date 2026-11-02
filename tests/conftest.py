@@ -4,6 +4,7 @@ from uuid import uuid4
 import pytest
 
 from app.core import db
+from app.llm import embeddings
 
 
 @pytest.fixture
@@ -40,4 +41,22 @@ def application_loan():
             conn.execute("DELETE FROM jobs WHERE loan_id = %s", (loan_id,))
             conn.execute("DELETE FROM loans WHERE id = %s", (loan_id,))
             conn.execute("DELETE FROM clients WHERE id = %s", (client_id,))
+
+
+@pytest.fixture
+def cleanup_documents():
+    ids = []
+    yield ids
+    if ids:
+        with db.connection() as conn:
+            conn.execute("DELETE FROM documents WHERE id = ANY(%s)", (ids,))
+
+
+@pytest.fixture(autouse=True)
+def no_real_embedding_model(monkeypatch):
+    def blocked():
+        raise AssertionError("Загрузка настоящей модели в тестах запрещена")
+
+    monkeypatch.setattr(embeddings, "_model", None)
+    monkeypatch.setattr(embeddings, "_load_model", blocked)
 

@@ -13,6 +13,14 @@ dependencies = [
     "openai-agents>=0.2,<1",
     "openai>=1.50",
     "temporalio>=1.14,<2",
+    "pdfplumber>=0.11",
+    "python-docx>=1.1",
+    "openpyxl>=3.1",
+    "torch>=2.6,<3",
+    "sentence-transformers>=5.1,<6",
+    "transformers>=4.56,<5",
+    "huggingface-hub[cli]>=0.34,<1",
+    "python-multipart>=0.0.20",
 ]
 
 [dependency-groups]
@@ -21,6 +29,8 @@ dev = [
     "pytest-asyncio>=0.23",
     "httpx2>=2.13.1",
     "ruff>=0.14",
+    "reportlab>=4.2",
+    "pillow>=10",
 ]
 
 [tool.uv]
@@ -35,3 +45,11 @@ extend-select = ["I"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 asyncio_mode = "auto"
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
