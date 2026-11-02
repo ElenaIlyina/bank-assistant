@@ -9,7 +9,6 @@ from app.services import application_process, applications, loans
 
 
 @dataclass
-@dataclass
 class ClientContext:
     loan_id: int
     request_id: str = field(default_factory=lambda: uuid4().hex)
